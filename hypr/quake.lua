@@ -23,7 +23,9 @@ local function quake_apply(bottom, force)
     workspace = QUAKE,
     gaps_in = 0,
     gaps_out = { top = 0, right = 0, bottom = bottom, left = 0 },
-    no_border = true,
+    -- The stock fitter turns the border off. Leave it on so the focused
+    -- window keeps its purple frame while the console is selected.
+    no_border = false,
   })
   hl.exec_scheduled_prop_refresh_immediately()
 end
