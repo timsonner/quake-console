@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# xdg-terminal-exec lands here. The Quake console is the agent window; every
+# other terminal keeps the normal foot config.
+config=()
+for arg in "$@"; do
+  if [[ $arg == --app-id=org.omarchy.agent ]]; then
+    config=(--config "$HOME/.config/foot/quake.ini")
+    # GrokNight: neutral dark base, magenta accent. The Quake face and
+    # the see-through window stay as they are.
+    export GROK_THEME=groknight
+    break
+  fi
+done
+
+exec foot "${config[@]}" "$@"

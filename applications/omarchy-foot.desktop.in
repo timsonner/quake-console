@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+TryExec=foot
+Exec=@BIN@
+Icon=foot
+Terminal=false
+Categories=System;TerminalEmulator;
+Name=Foot
+GenericName=Terminal
+Comment=Foot, with the Quake console face on the agent window
+StartupNotify=true
+StartupWMClass=foot
+X-TerminalArgExec=-e
+X-TerminalArgAppId=--app-id=
+X-TerminalArgTitle=--title=
+X-TerminalArgDir=--working-directory=
+X-TerminalArgHold=--hold

@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Install the Quake console onto this Omarchy machine.
+# Safe to run again. It copies files into place and does not remove them.
+
+set -euo pipefail
+
+root=$(cd "$(dirname "$0")" && pwd)
+home=${HOME:?}
+
+install -d "$home/.local/share/fonts/QuakeConsole"
+install -m 644 "$root/font/QuakeConsole.ttf" "$home/.local/share/fonts/QuakeConsole/QuakeConsole.ttf"
+install -m 644 "$root/font/COPYING" "$home/.local/share/fonts/QuakeConsole/COPYING"
+fc-cache -f "$home/.local/share/fonts/QuakeConsole"
+
+install -d "$home/.config/foot"
+install -m 644 "$root/foot/quake.ini" "$home/.config/foot/quake.ini"
+
+install -d "$home/.local/bin"
+install -m 755 "$root/bin/omarchy-foot-launch" "$home/.local/bin/omarchy-foot-launch"
+
+install -d "$home/.local/share/applications"
+sed "s|@BIN@|$home/.local/bin/omarchy-foot-launch|" \
+  "$root/applications/omarchy-foot.desktop.in" \
+  > "$home/.local/share/applications/omarchy-foot.desktop"
+
+install -m 644 "$root/hypr/hyprland-xdg-terminals.list" \
+  "$home/.config/hyprland-xdg-terminals.list"
+
+install -d "$home/.config/hypr"
+install -m 644 "$root/hypr/quake.lua" "$home/.config/hypr/quake.lua"
+
+hypr="$home/.config/hypr/hyprland.lua"
+if [[ ! -f $hypr ]]; then
+  printf 'missing %s\n' "$hypr" >&2
+  exit 1
+fi
+
+python3 - "$hypr" << 'PY'
+import pathlib, re, sys
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+legacy = re.compile(
+    r"\n*-- The Quake console is a black panel.*?"
+    r'hl\.on\("window\.update_rules", quake_recount\)\n*',
+    re.S,
+)
+text = legacy.sub("\n", text)
+require = 'require("hypr.quake")'
+if require not in text:
+    if not text.endswith("\n"):
+        text += "\n"
+    text += "\n-- Quake console size and opacity.\n" + require + "\n"
+path.write_text(text)
+PY
+
+rm -f "${XDG_CACHE_HOME:-$home/.cache}/xdg-terminal-exec"
+
+if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; then
+  hyprctl reload >/dev/null
+fi
+
+printf 'Quake console installed. Reopen it with Super+`.\n'

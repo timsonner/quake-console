@@ -1,0 +1,3 @@
+# The Quake console wrapper is Foot for every launch. Only the agent
+# window (app-id org.omarchy.agent) loads the console face.
+omarchy-foot.desktop
